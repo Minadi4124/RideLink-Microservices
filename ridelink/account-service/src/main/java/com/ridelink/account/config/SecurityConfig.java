@@ -4,6 +4,8 @@ import com.ridelink.account.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,6 +39,14 @@ public class SecurityConfig {
     }
 
     /**
+     * Exposes the AuthenticationManager bean required for authenticating users during login.
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    /**
      * Defines the HTTP security filter chain and request authorization policies.
      */
     @Bean
@@ -54,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/health").permitAll()
 
                         // Public authentication endpoints for user onboarding and credential exchange
-                        .requestMatchers(HttpMethod.POST, "/api/v1/accounts/register", "/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/accounts/register", "/api/v1/auth/login", "/api/v1/auth/login/**").permitAll()
 
                         // Administrative endpoints restricted strictly to ADMIN role
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/accounts/*/status").hasRole("ADMIN")
